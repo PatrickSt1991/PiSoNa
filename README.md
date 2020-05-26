@@ -9,3 +9,4 @@ Python Dependencies
  - datetime
  - os
  - time
+ - holidays
