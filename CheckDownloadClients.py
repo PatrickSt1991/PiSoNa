@@ -21,9 +21,11 @@ officehours_active = "no"
 PlexPlayingStatus = "no"
 searchString = "Download queue is empty."
 searchPlaying = "state=\"playing\""
+lookup_MobileDeviceSwitch = '"Status" : "Off",'
 startOfficeHours = 7
 endOfficeHours = 17
 nl_holidays = holidays.NL()
+DomoticzIP = "192.168.0.125:8080"
 
 # SSH Credentials (not secure)
 host_ip = '192.168.0.0' # Host ip where the download client is running
@@ -77,12 +79,13 @@ if response == 0:
                 PlexPlayingStatus = "yes"
 
             if transmission_active == "no" and nzbGet_active == "no" and officehours_active == "yes" and PlexPlayingStatus == "no":
-                #CHECK IF DOMOTICZ SWITCH IS ON OR OFF
-                # Shutdown the NAS -> NOT COMPLETLY WORKING...
-                client_shutdown = paramiko.SSHClient()
-                client_shutdown.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                client_shutdown.connect(host_ip, username=ssh_username, password=ssh_password)
+                getMobileDeviceSwitch = requests.get("http://" + DomoticzIP + "/json.htm?type=command&param=getlightswitches&idx=22") #check IDXs
+                if lookup_MobileDeviceSwitch in getMobileDeviceSwitch.text:
+                    # Shutdown the NAS -> NOT COMPLETLY WORKING...
+                    client_shutdown = paramiko.SSHClient()
+                    client_shutdown.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                    client_shutdown.connect(host_ip, username=ssh_username, password=ssh_password)
 
-                #stdin, stdout, stderr = client_shutdown.exec_command('sudo shutdown -h now')
+                    stdin, stdout, stderr = client_shutdown.exec_command('sudo shutdown -h now')
 
-                client_shutdown.close()
+                    client_shutdown.close()
