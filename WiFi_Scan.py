@@ -3,15 +3,16 @@
 # -------------------------------------------------------------------------
 # Creation Date: Mon 25 May 2020
 #
-# @ Author: Patrick Stel 
+# @ Author: Patrick Stel
 # @ Purpose: Script to check phone is on WiFi.
 # -------------------------------------------------------------------------
 
 import requests
 import os
 
-DomoticzIP = "http://192.168.0.125:8080"
-DomoticzRequest = requests.get(DomoticzIP + "/json.htm?type=command&param=getuservariable&idx=3") #IDX version
+DomoticzIP = "192.168.0.125:8080"
+MobileMacFound = "false"
+DomoticzRequest = requests.get("http://" + DomoticzIP + "/json.htm?type=command&param=getuservariable&idx=3") #IDX version
 
 DomoticzData = DomoticzRequest.json()
 DomoticzMac = DomoticzData['result'][0]['Value']
@@ -27,6 +28,7 @@ if os.path.exists('output_nmap.txt'):
 for macAddress in macAddresses:
     cleanAddress = macAddress.strip()
     if cleanAddress in WifiScan_output:
-        SetSwitchOn = requests.get(DomoticzIP + "/json.htm?type=command&param=switchlight&idx=22&switchcmd=On")
-    else:
-        SetSwitchOff = requests.get(DomoticzIP + "/json.htm?type=command&param=switchlight&idx=22&switchcmd=Off")
+        MobileMacFound = "true"
+        SetSwitchOn = requests.get("http://" + DomoticzIP + "/json.htm?type=command&param=switchlight&idx=22&switchcmd=On")
+    if MobileMacFound == "false":
+        SetSwitchOff = requests.get("http://" + DomoticzIP + "/json.htm?type=command&param=switchlight&idx=22&switchcmd=Off")
